@@ -359,7 +359,6 @@ libc_common_src_files += \
 	arch-arm/bionic/memset.S \
 	arch-arm/bionic/setjmp.S \
 	arch-arm/bionic/sigsetjmp.S \
-	arch-arm/bionic/strlen.c.arm \
 	arch-arm/bionic/strcpy.S \
 	arch-arm/bionic/strcmp.S \
 	arch-arm/bionic/syscall.S \
@@ -367,6 +366,11 @@ libc_common_src_files += \
 	string/bcopy.c \
 	string/strncmp.c \
 	unistd/socketcalls.c
+ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
+libc_common_src_files += arch-arm/bionic/strlen-armv7.S
+else
+libc_common_src_files += arch-arm/bionic/strlen.c.arm
+endif
 
 # These files need to be arm so that gdbserver
 # can set breakpoints in them without messing
