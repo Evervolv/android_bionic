@@ -267,7 +267,6 @@ libc_common_src_files := \
 	bionic/libc_init_common.c \
 	bionic/logd_write.c \
 	bionic/md5.c \
-	bionic/memmove_words.c \
 	bionic/pututline.c \
 	bionic/realpath.c \
 	bionic/sched_getaffinity.c \
@@ -365,11 +364,18 @@ libc_common_src_files += \
 # current ARM version
 ifeq ($(TARGET_USE_SCORPION_BIONIC_OPTIMIZATION),true)
 libc_common_src_files += \
+	arch-arm/bionic/memmove.S \
+	bionic/memmove_words.c
+else
+ ifeq ($(TARGET_USE_KRAIT_BIONIC_OPTIMIZATION),true)
+ libc_common_src_files += \
 	arch-arm/bionic/memmove.S
-else # Non-Scorpion-based ARM
-libc_common_src_files += \
+ else # Other ARM
+ libc_common_src_files += \
 	string/bcopy.c \
-	string/memmove.c.arm
+	string/memmove.c.arm \
+	bionic/memmove_words.c
+ endif # !TARGET_USE_KRAIT_BIONIC_OPTIMIZATION
 endif # !TARGET_USE_SCORPION_BIONIC_OPTIMIZATION
 
 # These files need to be arm so that gdbserver
@@ -565,7 +571,16 @@ ifeq ($(TARGET_ARCH),arm)
       libc_common_cflags += -DPLDSIZE=$(TARGET_SCORPION_BIONIC_PLDSIZE)
     endif
   endif
-
+  # Add in defines to activate KRAIT_NEON_OPTIMIZATION
+  ifeq ($(TARGET_USE_KRAIT_BIONIC_OPTIMIZATION),true)
+    libc_common_cflags += -DKRAIT_NEON_OPTIMIZATION
+    ifeq ($(TARGET_USE_KRAIT_PLD_SET),true)
+      libc_common_cflags += -DPLDOFFS=$(TARGET_KRAIT_BIONIC_PLDOFFS)
+      libc_common_cflags += -DPLDTHRESH=$(TARGET_KRAIT_BIONIC_PLDTHRESH)
+      libc_common_cflags += -DPLDSIZE=$(TARGET_KRAIT_BIONIC_PLDSIZE)
+      libc_common_cflags += -DBBTHRESH=$(TARGET_KRAIT_BIONIC_BBTHRESH)
+    endif
+  endif
   ifeq ($(TARGET_CORTEX_CACHE_LINE_32),true)
     libc_common_cflags += -DCORTEX_CACHE_LINE_32
   endif
