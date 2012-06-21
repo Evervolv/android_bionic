@@ -392,15 +392,27 @@ libc_arch_static_src_files := \
 libc_arch_dynamic_src_files := \
 	arch-arm/bionic/exidx_dynamic.c
 
-ifeq ($(ARCH_ARM_HAVE_ARMV7A),true)
+# Allow opt-out of linaro optimized string routines
+TARGET_USE_LINARO_STRING_ROUTINES ?= true
+
+# We can only use linaro optimizations on Arm-v7a
+ifeq ($(TARGET_USE_LINARO_STRING_ROUTINES)-$(ARCH_ARM_HAVE_ARMV7A),true-true)
 libc_common_src_files += \
 	arch-arm/bionic/armv7/memchr.S \
-	arch-arm/bionic/armv7/memcpy.S \
-	arch-arm/bionic/armv7/memset.S \
-	arch-arm/bionic/armv7/bzero.S \
 	arch-arm/bionic/armv7/strchr.S \
 	arch-arm/bionic/armv7/strcpy.c \
 	arch-arm/bionic/armv7/strlen.S
+# We don't want to override the scorpion optimizations
+ifeq ($(TARGET_USE_SCORPION_BIONIC_OPTIMIZATION),true)
+libc_common_src_files += \
+	arch-arm/bionic/memcpy.S \
+	arch-arm/bionic/memset.S
+else
+libc_common_src_files += \
+	arch-arm/bionic/armv7/memcpy.S \
+	arch-arm/bionic/armv7/memset.S \
+	arch-arm/bionic/armv7/bzero.S
+endif
 else
 libc_common_src_files += \
 	string/memchr.c \
