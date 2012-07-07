@@ -355,6 +355,7 @@ libc_common_src_files += \
 	arch-arm/bionic/memcmp16.S \
 	arch-arm/bionic/setjmp.S \
 	arch-arm/bionic/sigsetjmp.S \
+	arch-arm/bionic/strcpy.S \
 	arch-arm/bionic/strcmp.S \
 	arch-arm/bionic/syscall.S \
 	string/strncmp.c \
@@ -406,13 +407,11 @@ ifeq ($(TARGET_USE_LINARO_STRING_ROUTINES)-$(ARCH_ARM_HAVE_ARMV7A),true-true)
 libc_common_src_files += \
 	arch-arm/bionic/armv7/memchr.S \
 	arch-arm/bionic/armv7/strchr.S \
-	arch-arm/bionic/armv7/strcpy.c \
 	arch-arm/bionic/armv7/strlen.S
 else
 libc_common_src_files += \
 	string/memchr.c \
 	string/strchr.c \
-	arch-arm/bionic/strcpy.S \
 	arch-arm/bionic/strlen.c.arm
 endif
 
