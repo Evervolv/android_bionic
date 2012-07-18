@@ -294,7 +294,7 @@ memcpy:
 	bx              lr
 	.endfunc
 	.end
-#elif !defined(ARCH_ARM_USE_NON_NEON_MEMCPY) /* !SCORPION_NEON_OPTIMIZATION */
+#else
 #if defined(CORTEX_CACHE_LINE_32)
 	/*
 	   *This can be enabled by setting flag
@@ -534,7 +534,7 @@ ENTRY(memcpy)
 END(memcpy)
 #endif  /* CORTEX_CACHE_LINE_32 */
 #endif  /* !SCORPION_NEON_OPTIMIZATION */
-#else   /* __ARM_NEON__ && !ARCH_ARM_USE_NON_NEON_MEMCPY */
+#else   /* __ARM_ARCH__ < 7 */
 
 
 		/*
@@ -888,4 +888,4 @@ copy_last_3_and_return:
 END(memcpy)
 
 
-#endif    /* __ARM_NEON__ && !ARCH_ARM_USE_NON_NEON_MEMCPY */
+#endif    /* __ARM_ARCH__ < 7 */
