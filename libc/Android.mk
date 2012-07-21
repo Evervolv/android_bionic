@@ -473,10 +473,6 @@ libc_common_cflags := \
     -DLOG_ON_HEAP_ERROR \
     -std=gnu99
 
-ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-libc_common_cflags += -DQCOM_HARDWARE
-endif
-
 # these macro definitions are required to implement the
 # 'timezone' and 'daylight' global variables, as well as
 # properly update the 'tm_gmtoff' field in 'struct tm'.
