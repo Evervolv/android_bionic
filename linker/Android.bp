@@ -176,6 +176,9 @@ cc_binary {
             needs_non_pie_support: {
                 cppflags: ["-DENABLE_NON_PIE_SUPPORT"],
             },
+            needs_prelink_support: {
+                cppflags: ["-DENABLE_PRELINK_SUPPORT"],
+            },
         }
     },
 
