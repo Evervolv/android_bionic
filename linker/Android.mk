@@ -47,8 +47,12 @@ LOCAL_CFLAGS_x86 += -D__work_around_b_24465209__
 LOCAL_CONLYFLAGS += \
     -std=gnu99 \
 
+ifneq ($(TARGET_NEEDS_PRELINK_SUPPORT),true)
 LOCAL_CPPFLAGS += \
-    -Wold-style-cast \
+    -Wold-style-cast
+else
+  LOCAL_CFLAGS += -DENABLE_PRELINK_SUPPORT
+endif
 
 ifeq ($(TARGET_IS_64_BIT),true)
 LOCAL_CPPFLAGS += -DTARGET_IS_64_BIT
