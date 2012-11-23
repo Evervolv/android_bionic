@@ -139,7 +139,11 @@ static int GetTargetElfMachine() {
 ElfReader::ElfReader()
     : did_read_(false), did_load_(false), fd_(-1), file_offset_(0), file_size_(0), phdr_num_(0),
       phdr_table_(nullptr), shdr_table_(nullptr), shdr_num_(0), dynamic_(nullptr), strtab_(nullptr),
+#ifdef ENABLE_PRELINK_SUPPORT
+      strtab_size_(0), load_start_(nullptr), load_size_(0), load_bias_(0), required_base_(0), loaded_phdr_(nullptr),
+#else
       strtab_size_(0), load_start_(nullptr), load_size_(0), load_bias_(0), loaded_phdr_(nullptr),
+#endif
       mapped_by_caller_(false) {
 }
 
@@ -415,6 +419,38 @@ size_t phdr_table_get_load_size(const ElfW(Phdr)* phdr_table, size_t phdr_count,
   return max_vaddr - min_vaddr;
 }
 
+#ifdef ENABLE_PRELINK_SUPPORT
+typedef struct {
+    long mmap_addr;
+    char tag[4]; /* 'P', 'R', 'E', ' ' */
+} prelink_info_t;
+
+/* Returns the requested base address if the library is prelinked,
+ * and 0 otherwise.  */
+static ElfW(Addr) is_prelinked(int fd, const char *name)
+{
+    off_t sz = lseek(fd, -sizeof(prelink_info_t), SEEK_END);
+    if (sz < 0) {
+        DL_ERR("lseek() failed!");
+        return 0;
+    }
+
+    prelink_info_t info;
+    int rc = TEMP_FAILURE_RETRY(read(fd, &info, sizeof(info)));
+    if (rc != sizeof(info)) {
+        DL_ERR("Could not read prelink_info_t structure for `%s`\n", name);
+        return 0;
+    }
+
+    if (memcmp(info.tag, "PRE ", 4)) {
+        DL_ERR("`%s` is not a prelinked library\n", name);
+        return 0;
+    }
+
+    return (unsigned long)info.mmap_addr;
+}
+#endif
+
 // Reserve a virtual address range big enough to hold all loadable
 // segments of a program header table. This is done by creating a
 // private anonymous mmap() with PROT_NONE.
@@ -456,7 +492,16 @@ bool ElfReader::ReserveAddressSpace(const android_dlextinfo* extinfo) {
              reserved_size - load_size_, load_size_, name_.c_str());
       return false;
     }
+#ifdef ENABLE_PRELINK_SUPPORT
+    required_base_ = is_prelinked(fd_, name_.c_str());
+#endif
     int mmap_flags = MAP_PRIVATE | MAP_ANONYMOUS;
+#ifdef ENABLE_PRELINK_SUPPORT
+    if (required_base_ != 0) {
+      mmap_flags |= MAP_FIXED;
+      mmap_hint = (uint8_t*) required_base_;
+    }
+#endif
     start = mmap(mmap_hint, load_size_, PROT_NONE, mmap_flags, -1, 0);
     if (start == MAP_FAILED) {
       DL_ERR("couldn't reserve %zd bytes of address space for \"%s\"", load_size_, name_.c_str());
@@ -474,7 +519,11 @@ bool ElfReader::ReserveAddressSpace(const android_dlextinfo* extinfo) {
   }
 
   load_start_ = start;
+#ifdef ENABLE_PRELINK_SUPPORT
+  load_bias_ = reinterpret_cast<uint8_t*>(start) - reinterpret_cast<uint8_t*>(min_vaddr);
+#else
   load_bias_ = reinterpret_cast<uint8_t*>(start) - addr;
+#endif
   return true;
 }
 
