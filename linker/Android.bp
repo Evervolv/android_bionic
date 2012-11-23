@@ -106,6 +106,9 @@ cc_binary {
             cppflags: ["-DUSE_LD_CONFIG_FILE"],
         },
         evervolv: {
+            needs_prelink_support: {
+                cppflags: ["-DENABLE_PRELINK_SUPPORT"],
+            },
             needs_non_pie_support: {
                 cppflags: ["-DENABLE_NON_PIE_SUPPORT"],
             },

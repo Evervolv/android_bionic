@@ -142,7 +142,11 @@ static int GetTargetElfMachine() {
 ElfReader::ElfReader()
     : did_read_(false), did_load_(false), fd_(-1), file_offset_(0), file_size_(0), phdr_num_(0),
       phdr_table_(nullptr), shdr_table_(nullptr), shdr_num_(0), dynamic_(nullptr), strtab_(nullptr),
+#ifdef ENABLE_PRELINK_SUPPORT
+      strtab_size_(0), load_start_(nullptr), load_size_(0), load_bias_(0), required_base_(0), loaded_phdr_(nullptr),
+#else
       strtab_size_(0), load_start_(nullptr), load_size_(0), load_bias_(0), loaded_phdr_(nullptr),
+#endif
       mapped_by_caller_(false) {
 }
 
@@ -512,10 +516,49 @@ size_t phdr_table_get_load_size(const ElfW(Phdr)* phdr_table, size_t phdr_count,
   return max_vaddr - min_vaddr;
 }
 
+#ifdef ENABLE_PRELINK_SUPPORT
+typedef struct {
+    long mmap_addr;
+    char tag[4]; /* 'P', 'R', 'E', ' ' */
+} prelink_info_t;
+
+/* Returns the requested base address if the library is prelinked,
+ * and 0 otherwise.  */
+static ElfW(Addr) is_prelinked(int fd, const char *name)
+{
+    off_t sz = lseek(fd, -sizeof(prelink_info_t), SEEK_END);
+    if (sz < 0) {
+        DL_ERR("lseek() failed!");
+        return 0;
+    }
+
+    prelink_info_t info;
+    int rc = TEMP_FAILURE_RETRY(read(fd, &info, sizeof(info)));
+    if (rc != sizeof(info)) {
+        DL_ERR("Could not read prelink_info_t structure for `%s`\n", name);
+        return 0;
+    }
+
+    if (memcmp(info.tag, "PRE ", 4)) {
+        DL_ERR("`%s` is not a prelinked library\n", name);
+        return 0;
+    }
+
+    return static_cast<unsigned long>(info.mmap_addr);
+}
+#endif
+
 // Reserve a virtual address range such that if it's limits were extended to the next 2**align
 // boundary, it would not overlap with any existing mappings.
-static void* ReserveAligned(void* hint, size_t size, size_t align) {
+static void* ReserveAligned(void* hint, size_t size, size_t align, int fixed) {
   int mmap_flags = MAP_PRIVATE | MAP_ANONYMOUS;
+#ifdef ENABLE_PRELINK_SUPPORT
+  if (fixed != 0) {
+    mmap_flags |= MAP_FIXED;
+  }
+#else
+  (void)fixed;
+#endif
   // Address hint is only used in Art for the image mapping, and it is pretty important. Don't mess
   // with it.
   // FIXME: try an aligned allocation and fall back to plain mmap() if the former does not provide a
@@ -587,7 +630,16 @@ bool ElfReader::ReserveAddressSpace(const android_dlextinfo* extinfo) {
              reserved_size - load_size_, load_size_, name_.c_str());
       return false;
     }
-    start = ReserveAligned(mmap_hint, load_size_, kLibraryAlignment);
+
+#ifdef ENABLE_PRELINK_SUPPORT
+    required_base_ = is_prelinked(fd_, name_.c_str());
+    if (required_base_ != 0) {
+      mmap_hint = reinterpret_cast<uint8_t*>(required_base_);
+    }
+    start = ReserveAligned(mmap_hint, load_size_, kLibraryAlignment, required_base_);
+#else
+    start = ReserveAligned(mmap_hint, load_size_, kLibraryAlignment, 0);
+#endif
     if (start == nullptr) {
       DL_ERR("couldn't reserve %zd bytes of address space for \"%s\"", load_size_, name_.c_str());
       return false;
