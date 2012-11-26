@@ -285,7 +285,7 @@ static int log_vprint(int prio, const char *tag, const char *fmt, va_list  args)
     result = vformat_buffer(buf, sizeof buf, fmt, args);
 
     if (log_fd < 0) {
-        log_fd = open("/dev/log/main", O_WRONLY);
+        log_fd = open("/dev/alog/main", O_WRONLY);
         if (log_fd < 0)
             return result;
     }

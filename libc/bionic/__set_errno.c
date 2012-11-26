@@ -29,11 +29,13 @@
 #include <errno.h>
 
 
+#ifdef LIBC_STATIC
 int __set_errno(int n)
 {
     errno = n;
     return -1;
 }
+#endif
 
 /*
  * this function is called from syscall stubs,

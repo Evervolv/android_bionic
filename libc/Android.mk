@@ -256,7 +256,6 @@ libc_common_src_files := \
 	tzcode/localtime.c \
 	tzcode/strftime.c \
 	tzcode/strptime.c \
-	bionic/__set_errno.c \
 	bionic/bionic_clone.c \
 	bionic/cpuacct.c \
 	bionic/arc4random.c \
@@ -854,6 +853,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	$(libc_arch_static_src_files) \
 	$(libc_static_common_src_files) \
+	bionic/__set_errno.c \
 	bionic/libc_init_static.c
 
 LOCAL_C_INCLUDES := $(libc_common_c_includes)
@@ -867,6 +867,33 @@ LOCAL_SYSTEM_SHARED_LIBRARIES :=
 
 include $(BUILD_STATIC_LIBRARY)
 
+# ========================================================
+# libdsyscalls.so
+# ========================================================
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES := \
+	$(libc_arch_static_src_files) \
+	$(libc_static_common_src_files) \
+	bionic/dlmalloc.c \
+	bionic/malloc_debug_common.cpp \
+	bionic/__set_errno.c \
+	hybris/libdsyscalls.c
+
+LOCAL_C_INCLUDES := $(libc_common_c_includes)
+LOCAL_CFLAGS := $(libc_common_cflags)
+
+LOCAL_MODULE:= libdsyscalls
+
+LOCAL_SHARED_LIBRARIES := libdl
+LOCAL_WHOLE_STATIC_LIBRARIES := libc_common
+LOCAL_SYSTEM_SHARED_LIBRARIES :=
+
+LOCAL_LDFLAGS := -Wl,--exclude-libs=libgcc.a
+
+LOCAL_MODULE_TAGS := optional
+
+include $(BUILD_SHARED_LIBRARY)
 
 # ========================================================
 # libc.a
@@ -876,6 +903,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	$(libc_arch_static_src_files) \
 	$(libc_static_common_src_files) \
+	bionic/__set_errno.c \
 	bionic/dlmalloc.c \
 	bionic/malloc_debug_common.cpp \
 	bionic/libc_init_static.c
@@ -908,6 +936,7 @@ LOCAL_C_INCLUDES := $(libc_common_c_includes)
 LOCAL_SRC_FILES := \
 	$(libc_arch_dynamic_src_files) \
 	$(libc_static_common_src_files) \
+	bionic/__set_errno.c \
 	bionic/dlmalloc.c \
 	bionic/malloc_debug_common.cpp \
 	bionic/pthread_debug.c \
@@ -935,7 +964,7 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
 # create an "cloaked" dependency on libgcc.a in libc though the libraries, which is not what
 # you wanted!
 
-LOCAL_SHARED_LIBRARIES := libdl
+LOCAL_SHARED_LIBRARIES := libdl libdsyscalls
 LOCAL_WHOLE_STATIC_LIBRARIES := libc_common
 LOCAL_SYSTEM_SHARED_LIBRARIES :=
 
@@ -1001,6 +1030,7 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
 LOCAL_SHARED_LIBRARIES := libc libdl
 LOCAL_WHOLE_STATIC_LIBRARIES := libc_common
 LOCAL_SYSTEM_SHARED_LIBRARIES :=
+LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
 
 # Don't install on release build
 LOCAL_MODULE_TAGS := eng debug

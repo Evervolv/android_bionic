@@ -41,10 +41,10 @@
 #include "logd.h"
 
 /* should match system/core/include/cutils/logger.h */
-#define LOGGER_LOG_MAIN     "log/main"
-#define LOGGER_LOG_RADIO    "log/radio"
-#define LOGGER_LOG_EVENTS   "log/events"
-#define LOGGER_LOG_SYSTEM   "log/system"
+#define LOGGER_LOG_MAIN     "alog/main"
+#define LOGGER_LOG_RADIO    "alog/radio"
+#define LOGGER_LOG_EVENTS   "alog/events"
+#define LOGGER_LOG_SYSTEM   "alog/system"
 
 #include <pthread.h>
 
