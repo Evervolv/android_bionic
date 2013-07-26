@@ -245,8 +245,6 @@ libm_common_includes := $(LOCAL_PATH)/upstream-freebsd/lib/msun/src/
 libm_arm_includes := $(LOCAL_PATH)/arm
 libm_arm_src_files := arm/fenv.c
 ifeq ($(TARGET_CPU_VARIANT),krait)
-  libm_arm_src_files += \
-	arm/e_pow.S
   libm_arm_cflags += -DKRAIT_NEON_OPTIMIZATION
 endif
 
