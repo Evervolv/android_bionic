@@ -1014,6 +1014,16 @@ cc_library_static {
                     "arch-arm/cortex-a15/bionic/strcmp.S",
                 ],
             },
+            scorpion: {
+                srcs: [
+                    "arch-arm/krait/bionic/memset.S",
+                    "arch-arm/krait/bionic/strcmp.S",
+                ],
+                exclude_srcs: [
+                    "arch-arm/cortex-a15/bionic/memset.S",
+                    "arch-arm/cortex-a15/bionic/strcmp.S",
+                ],
+            },
             // Cores not listed above (like cortex-a8, cortex-a15) or
             // "generic" core will use the following implementation.
             neon: {
