@@ -687,6 +687,13 @@ cc_library_static {
                     "upstream-openbsd/lib/libc/string/strcat.c",
                 ],
             },
+            scorpion: {
+                exclude_srcs: [
+                    "upstream-openbsd/lib/libc/string/memmove.c",
+                    "upstream-openbsd/lib/libc/string/stpcpy.c",
+                    "upstream-openbsd/lib/libc/string/strcat.c",
+                ],
+            },
         },
         arm64: {
             exclude_srcs: [
@@ -1048,6 +1055,33 @@ cc_library_static {
                     "arch-arm/cortex-a15/bionic/stpcpy.S",
                     "arch-arm/cortex-a15/bionic/strcat.S",
                     "arch-arm/cortex-a15/bionic/strcpy.S",
+                    "arch-arm/cortex-a15/bionic/strlen.S",
+
+                    "arch-arm/denver/bionic/memmove.S",
+                ],
+                exclude_srcs: [
+                    "arch-arm/generic/bionic/memcpy.S",
+                    "arch-arm/generic/bionic/memset.S",
+                    "arch-arm/generic/bionic/strcmp.S",
+                    "arch-arm/generic/bionic/strcpy.S",
+                    "arch-arm/generic/bionic/strlen.c",
+                    "bionic/__strcat_chk.cpp",
+                    "bionic/__strcpy_chk.cpp",
+                ],
+            },
+            scorpion: {
+                srcs: [
+                    // Use krait memset/strcmp/memmove.
+                    "arch-arm/krait/bionic/memset.S",
+                    "arch-arm/krait/bionic/strcmp.S",
+
+                    // Use cortex-a15 versions of strcat/strcpy/strlen.
+                    "arch-arm/cortex-a15/bionic/memcpy.S",
+                    "arch-arm/cortex-a15/bionic/stpcpy.S",
+                    "arch-arm/cortex-a15/bionic/strcat.S",
+                    "arch-arm/cortex-a15/bionic/__strcat_chk.S",
+                    "arch-arm/cortex-a15/bionic/strcpy.S",
+                    "arch-arm/cortex-a15/bionic/__strcpy_chk.S",
                     "arch-arm/cortex-a15/bionic/strlen.S",
 
                     "arch-arm/denver/bionic/memmove.S",
