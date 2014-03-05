@@ -369,7 +369,6 @@ libc_common_src_files += \
 	string/strncpy.c \
 	bionic/strchr.cpp \
 	string/strrchr.c \
-	bionic/memchr.c \
 	bionic/memrchr.c \
 	string/index.c \
 	bionic/strnlen.c \
