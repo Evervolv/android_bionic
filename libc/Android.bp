@@ -1422,6 +1422,14 @@ cc_library_static {
         },
     },
 
+    product_variables: {
+        evervolv: {
+            has_legacy_mmap: {
+                cppflags: ["-DLEGACY_MMAP"],
+            },
+        }
+    },
+
     cppflags: ["-Wold-style-cast"],
     local_include_dirs: ["stdio"],
     include_dirs: ["bionic/libstdc++/include"],
