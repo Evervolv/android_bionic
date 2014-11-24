@@ -106,6 +106,9 @@ cc_binary {
             cppflags: ["-DUSE_LD_CONFIG_FILE"],
         },
         evervolv: {
+            needs_non_pie_support: {
+                cppflags: ["-DENABLE_NON_PIE_SUPPORT"],
+            },
             needs_text_relocations: {
                 cppflags: ["-DTARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS"],
             },

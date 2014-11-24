@@ -315,6 +315,7 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args) {
 
   si->dynamic = nullptr;
 
+#ifndef ENABLE_NON_PIE_SUPPORT
   ElfW(Ehdr)* elf_hdr = reinterpret_cast<ElfW(Ehdr)*>(si->base);
 
   // We haven't supported non-PIE since Lollipop for security reasons.
@@ -332,6 +333,7 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args) {
                      g_argv[0]);
     exit(EXIT_FAILURE);
   }
+#endif
 
   // Use LD_LIBRARY_PATH and LD_PRELOAD (but only if we aren't setuid/setgid).
   parse_LD_LIBRARY_PATH(ldpath_env);
