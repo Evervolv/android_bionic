@@ -173,6 +173,9 @@ cc_binary {
             target_process_sdk_version_override: {
                 cppflags: ["-DSDK_VERSION_OVERRIDES=\"%s\""],
             },
+            needs_non_pie_support: {
+                cppflags: ["-DENABLE_NON_PIE_SUPPORT"],
+            },
         }
     },
 
