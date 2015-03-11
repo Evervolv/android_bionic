@@ -627,7 +627,6 @@ END(memcpy)
 ENTRY_PRIVATE(__memcpy_chk_fail)
         // Preserve lr for backtrace.
         push    {lr}
-        .save   {lr}
         .cfi_def_cfa_offset 4
         .cfi_rel_offset lr, 0
 
