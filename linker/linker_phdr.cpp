@@ -500,11 +500,9 @@ bool ElfReader::ReserveAddressSpace(const android_dlextinfo* extinfo) {
              reserved_size - load_size_, load_size_, name_.c_str());
       return false;
     }
-#ifdef ENABLE_PRELINK_SUPPORT
-    required_base_ = is_prelinked(fd_, name_.c_str());
-#endif
     int mmap_flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #ifdef ENABLE_PRELINK_SUPPORT
+    required_base_ = is_prelinked(fd_, name_.c_str());
     if (required_base_ != 0) {
       mmap_flags |= MAP_FIXED;
       mmap_hint = (uint8_t*) required_base_;
@@ -527,11 +525,7 @@ bool ElfReader::ReserveAddressSpace(const android_dlextinfo* extinfo) {
   }
 
   load_start_ = start;
-#ifdef ENABLE_PRELINK_SUPPORT
-  load_bias_ = reinterpret_cast<uint8_t*>(start) - reinterpret_cast<uint8_t*>(min_vaddr);
-#else
   load_bias_ = reinterpret_cast<uint8_t*>(start) - addr;
-#endif
   return true;
 }
 
