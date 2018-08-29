@@ -81,6 +81,7 @@ cc_object {
 cc_defaults {
     name: "linker_defaults",
     defaults: [
+        "process_sdk_version_overrides_defaults",
         "shim_libs_defaults",
     ],
     arch: {
