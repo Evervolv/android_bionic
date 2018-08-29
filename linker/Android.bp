@@ -202,6 +202,9 @@ cc_defaults {
             target_shim_libs: {
                 cppflags: ["-DLD_SHIM_LIBS=\"%s\""],
             },
+            target_process_sdk_version_override: {
+                cppflags: ["-DSDK_VERSION_OVERRIDES=\"%s\""],
+            },
         }
     },
 
