@@ -105,14 +105,7 @@ pthread_internal_t* __pthread_internal_find(pthread_t thread_id, const char* cal
 
   // Historically we'd return null, but from API level 26 we catch this error.
   if (android_get_application_target_sdk_version() >= 26) {
-    if (thread == nullptr) {
-      // This seems to be a common mistake, and it's relatively harmless because
-      // there will never be a valid thread at address 0, whereas other invalid
-      // addresses might sometimes contain threads or things that look enough like
-      // threads for us to do some real damage by continuing.
-      // TODO: try getting rid of this when Treble lets us keep vendor blobs on an old API level.
-      async_safe_format_log(ANDROID_LOG_WARN, "libc", "invalid pthread_t (0) passed to %s", caller);
-    } else {
+    if (thread != nullptr) {
       async_safe_fatal("invalid pthread_t %p passed to %s", thread, caller);
     }
   }
