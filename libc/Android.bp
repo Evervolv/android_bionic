@@ -1905,6 +1905,12 @@ cc_library {
 }
 
 cc_library_shared {
+    name: "libstdc++_product",
+    defaults: ["libstdc++_defaults"],
+    product_specific: true,
+}
+
+cc_library_shared {
     name: "libstdc++_vendor",
     defaults: ["libstdc++_defaults"],
     soc_specific: true,
